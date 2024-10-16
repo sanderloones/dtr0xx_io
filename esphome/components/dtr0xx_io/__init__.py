@@ -22,21 +22,21 @@ dtr0xx_ioGPIOPin = dtr0xx_io_ns.class_(
 )
 
 CONF_dtr0xx_io = "dtr0xx_io"
-CONF_DINGTIAN_PL = "dingtian_pl_pin"
 CONF_DINGTIAN_RCK = "dingtian_rck_pin"
-CONF_SR_COUNT = "sr_count"
+CONF_DINGTIAN_CLK = "dingtian_clk_pin"
 CONF_DINGTIAN_Q7= "dingtian_q7_pin"
 CONF_DINGTIAN_SDI = "dingtian_sdi_pin"
-CONF_DINGTIAN_CLK = "dingtian_clk_pin"
+CONF_DINGTIAN_PL = "dingtian_pl_pin"
+CONF_SR_COUNT = "sr_count"
 
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_ID): cv.declare_id(dtr0xx_ioComponent),
+        cv.Required(CONF_DINGTIAN_RCK): pins.gpio_output_pin_schema,
+        cv.Required(CONF_DINGTIAN_CLK): pins.gpio_output_pin_schema,
         cv.Required(CONF_DINGTIAN_Q7): pins.gpio_input_pin_schema,
         cv.Required(CONF_DINGTIAN_SDI): pins.gpio_output_pin_schema,
-        cv.Required(CONF_DINGTIAN_CLK): pins.gpio_output_pin_schema,
-        cv.Required(CONF_DINGTIAN_PL): pins.gpio_output_pin_schema,
-        cv.Optional(CONF_DINGTIAN_RCK): pins.gpio_output_pin_schema,
+        cv.Optional(CONF_DINGTIAN_PL): pins.gpio_output_pin_schema,
         cv.Optional(CONF_SR_COUNT, default=1): cv.int_range(min=1, max=256),
     }
 ).extend(cv.COMPONENT_SCHEMA)
@@ -45,17 +45,22 @@ CONFIG_SCHEMA = cv.Schema(
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
-    dingtian_q7_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_Q7])
-    cg.add(var.set_dingtian_q7_pin(dingtian_q7_pin))
-    dingtian_sdi_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_SDI])
-    cg.add(var.set_dingtian_sdi_pin(dingtian_sdi_pin))
+
+    dingtian_rck_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_RCK])
+    cg.add(var.set_dingtian_rck_pin(dingtian_rck_pin))
+
     dingtian_clk_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_CLK])
     cg.add(var.set_dingtian_clk_pin(dingtian_clk_pin))
-    dingtian_pl_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_PL])
-    cg.add(var.set_dingtian_pl_pin(dingtian_pl_pin))
-    if CONF_DINGTIAN_RCK in config:
-        dingtian_rck_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_RCK])
-        cg.add(var.set_dingtian_rck_pin(dingtian_rck_pin))
+
+    dingtian_q7_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_Q7])
+    cg.add(var.set_dingtian_q7_pin(dingtian_q7_pin))
+
+    dingtian_sdi_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_SDI])
+    cg.add(var.set_dingtian_sdi_pin(dingtian_sdi_pin))
+
+    if CONF_DINGTIAN_PL in config:
+        dingtian_pl_pin = await cg.gpio_pin_expression(config[CONF_DINGTIAN_PL])
+        cg.add(var.set_dingtian_pl_pin(dingtian_pl_pin))
 
     cg.add(var.set_sr_count(config[CONF_SR_COUNT]))
 
@@ -84,7 +89,7 @@ def dtr0xx_io_pin_final_validate(pin_config, parent_config):
     max_pins = parent_config[CONF_SR_COUNT] * 8
     if pin_config[CONF_NUMBER] >= max_pins:
         raise cv.Invalid(f"Pin number must be less than {max_pins}")
-    
+
 
 
 @pins.PIN_SCHEMA_REGISTRY.register(CONF_dtr0xx_io, dtr0xx_io_PIN_SCHEMA, dtr0xx_io_pin_final_validate)
