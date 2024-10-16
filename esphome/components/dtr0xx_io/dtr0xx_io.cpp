@@ -20,8 +20,9 @@ void dtr0xx_ioComponent::setup() {
 
   this->dingtian_sdi_pin_->setup();
 
-  if (this->dingtian_pl_pin_ != nullptr) {
-    this->dingtian_pl_pin_->setup();
+  this->dingtian_pl_pin_->setup();
+
+  if (!this->dingtian_v2_) {
     this->dingtian_pl_pin_->digital_write(false);
   }
 
@@ -55,7 +56,7 @@ void dtr0xx_ioComponent::digital_write_(uint16_t pin, bool value) {
 void dtr0xx_ioComponent::read_gpio_() {
   this->dingtian_rck_pin_->digital_write(false);
 
-  if (this->dingtian_pl_pin_ != nullptr) {
+  if (!this->dingtian_v2_) {
     this->dingtian_pl_pin_->digital_write(true);
   }
 
@@ -69,7 +70,7 @@ void dtr0xx_ioComponent::read_gpio_() {
     }
   }
 
-  if (this->dingtian_pl_pin_ != nullptr) {
+  if (!this->dingtian_v2_) {
     this->dingtian_pl_pin_->digital_write(false);
   }
 

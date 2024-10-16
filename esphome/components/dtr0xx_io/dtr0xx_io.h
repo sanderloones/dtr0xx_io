@@ -24,6 +24,8 @@ class dtr0xx_ioComponent : public Component {
     void set_dingtian_sdi_pin(GPIOPin *pin) { this->dingtian_sdi_pin_ = pin; }
     void set_dingtian_pl_pin(GPIOPin *pin) { this->dingtian_pl_pin_ = pin; }
 
+    void set_dingtian_v2(bool v2) { this->dingtian_v2_ = v2; }
+
     void set_sr_count(uint8_t count) {
       this->sr_count_ = count;
       this->input_bits_.resize(count * 8);
@@ -37,11 +39,14 @@ class dtr0xx_ioComponent : public Component {
     void read_gpio_();
     void write_gpio_();
 
+    GPIOPin *dingtian_rck_pin_;
+    GPIOPin *dingtian_clk_pin_;
     GPIOPin *dingtian_q7_pin_;
     GPIOPin *dingtian_sdi_pin_;
-    GPIOPin *dingtian_clk_pin_;
     GPIOPin *dingtian_pl_pin_;
-    GPIOPin *dingtian_rck_pin_;
+
+    bool dingtian_v2_;
+
     uint8_t sr_count_;
     std::vector<bool> input_bits_;
     std::vector<bool> output_bits_;
